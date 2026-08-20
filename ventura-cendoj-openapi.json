@@ -1,9 +1,9 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "info": {
     "title": "Ventura Jurisprudencia CENDOJ",
     "description": "Busca jurisprudencia española en CENDOJ mediante el Actor legaltech/cendoj de Apify y recupera el texto de resoluciones concretas para su análisis jurídico.",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "servers": [
     {
@@ -19,8 +19,8 @@
     "/acts/legaltech~cendoj/run-sync-get-dataset-items": {
       "post": {
         "operationId": "buscarYLeerJurisprudenciaCendoj",
-        "summary": "Busca jurisprudencia en CENDOJ o extrae el texto de PDFs previamente localizados.",
-        "description": "Usa searchTerms para buscar resoluciones. Puede enviar hasta 4 consultas con operadores AND/OR/NOT/NEARn (o Y/O/NO/PROXn). Para leer resoluciones concretas, realiza una segunda llamada usando pdfUrls obtenidas en la primera búsqueda. No atribuyas doctrina a una resolución sin recuperar el texto cuando sea necesario verificar el fundamento jurídico.",
+        "summary": "Busca jurisprudencia en CENDOJ o extrae texto de resoluciones.",
+        "description": "Busca resoluciones con searchTerms. Para leer una sentencia concreta, usa en una segunda llamada las pdfUrls obtenidas en la búsqueda. Verifica siempre el texto antes de atribuir doctrina jurídica.",
         "x-openai-isConsequential": false,
         "requestBody": {
           "required": true,
@@ -35,7 +35,7 @@
                     "items": {
                       "type": "string"
                     },
-                    "description": "Hasta 4 consultas. Ej.: [\"arraigo social AND \\\"vínculos familiares\\\"\", \"afinidad NEAR20 \\\"primer grado\\\"\"]"
+                    "description": "Hasta 4 consultas. Admite AND/OR/NOT/NEARn o Y/O/NO/PROXn."
                   },
                   "pdfUrls": {
                     "type": "array",
@@ -75,7 +75,7 @@
                         "45"
                       ]
                     },
-                    "description": "Órganos más útiles en contencioso: 11|12|13|14|15|16=Tribunal Supremo; 14=TS Sala Contencioso; 22|2264|23|24|25|26|27|28|29=Audiencia Nacional; 23=AN Sala Contencioso; 29=Juzgados Centrales Contencioso; 31|31201202|33|34=TSJ; 33=TSJ Sala Contencioso; 45=Juzgado Contencioso-Administrativo."
+                    "description": "14=TS Contencioso; 23=AN Contencioso; 33=TSJ Contencioso; 45=Juzgado Contencioso-Administrativo."
                   },
                   "resolutionTypes": {
                     "type": "array",
@@ -130,11 +130,11 @@
                     "minimum": 0,
                     "maximum": 20,
                     "default": 0,
-                    "description": "0 devuelve texto completo; >0 devuelve ese número de pasajes relevantes cuando se extrae texto."
+                    "description": "0 devuelve texto completo; un valor mayor devuelve pasajes relevantes."
                   },
                   "paragraphTerms": {
                     "type": "string",
-                    "description": "Términos para localizar pasajes clave al usar pdfUrls y paragraphs > 0."
+                    "description": "Términos para localizar pasajes clave al usar pdfUrls."
                   },
                   "dateFrom": {
                     "type": "string",
@@ -179,6 +179,7 @@
     }
   },
   "components": {
+    "schemas": {},
     "securitySchemes": {
       "apifyBearer": {
         "type": "http",
