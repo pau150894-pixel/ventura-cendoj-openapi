@@ -1,0 +1,195 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ventura Jurisprudencia CENDOJ",
+    "version": "2.0.0",
+    "description": "Conector para buscar y leer jurisprudencia de CENDOJ mediante el Actor legaltech/cendoj de Apify."
+  },
+  "servers": [
+    {
+      "url": "https://api.apify.com/v2"
+    }
+  ],
+  "paths": {
+    "/acts/legaltech~cendoj/run-sync-get-dataset-items": {
+      "post": {
+        "operationId": "buscarYLeerJurisprudenciaCendojV2",
+        "summary": "Busca o lee resoluciones de CENDOJ",
+        "description": "Busca resoluciones con searchTerms. Para leer una resolución concreta, usa sus pdfUrls en una segunda llamada.",
+        "x-openai-isConsequential": false,
+        "security": [
+          {
+            "apifyBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CendojRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultados de búsqueda o texto extraído."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CendojRequest": {
+        "type": "object",
+        "properties": {
+          "searchTerms": {
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+              "type": "string"
+            },
+            "description": "Hasta 4 consultas. Admite AND, OR, NOT y NEARn."
+          },
+          "pdfUrls": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string"
+            },
+            "description": "URLs de PDF obtenidas en una búsqueda anterior."
+          },
+          "jurisdictions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CIVIL",
+                "PENAL",
+                "CONTENCIOSO",
+                "SOCIAL",
+                "MILITAR",
+                "ESPECIAL"
+              ]
+            }
+          },
+          "organoTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "11|12|13|14|15|16",
+                "14",
+                "22|2264|23|24|25|26|27|28|29",
+                "23",
+                "29",
+                "31|31201202|33|34",
+                "33",
+                "45"
+              ]
+            }
+          },
+          "resolutionTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SENTENCIA",
+                "AUTO",
+                "AUTOADMISION",
+                "AUTOINADMISION",
+                "AUTOACLARATORIO",
+                "AUTOOTROS",
+                "ACUERDO"
+              ]
+            }
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANDALUCÍA",
+                "ARAGÓN",
+                "ASTURIAS",
+                "BALEARES",
+                "CANARIAS",
+                "CANTABRIA",
+                "CASTILLA LA MANCHA",
+                "CASTILLA Y LEÓN",
+                "CATALUÑA",
+                "CEUTA",
+                "COMUNIDAD VALENCIANA",
+                "EXTREMADURA",
+                "GALICIA",
+                "LA RIOJA",
+                "MADRID",
+                "MELILLA",
+                "MURCIA",
+                "NAVARRA",
+                "PAÍS VASCO"
+              ]
+            }
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10
+          },
+          "paragraphs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 20,
+            "default": 0
+          },
+          "paragraphTerms": {
+            "type": "string"
+          },
+          "dateFrom": {
+            "type": "string"
+          },
+          "dateTo": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "Relevance",
+              "IN_FECHARESOLUCION:increasing",
+              "IN_FECHARESOLUCION:decreasing",
+              "IN_FECHAENTRADA:numberdecreasing"
+            ],
+            "default": "Relevance"
+          },
+          "proxyConfiguration": {
+            "type": "object",
+            "properties": {
+              "useApifyProxy": {
+                "type": "boolean"
+              },
+              "apifyProxyGroups": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "apifyProxyCountry": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apifyBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Token"
+      }
+    }
+  }
+}
