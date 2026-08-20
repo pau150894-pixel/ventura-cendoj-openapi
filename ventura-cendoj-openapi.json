@@ -1,0 +1,190 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Ventura Jurisprudencia CENDOJ",
+    "description": "Busca jurisprudencia española en CENDOJ mediante el Actor legaltech/cendoj de Apify y recupera el texto de resoluciones concretas para su análisis jurídico.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.apify.com/v2"
+    }
+  ],
+  "security": [
+    {
+      "apifyBearer": []
+    }
+  ],
+  "paths": {
+    "/acts/legaltech~cendoj/run-sync-get-dataset-items": {
+      "post": {
+        "operationId": "buscarYLeerJurisprudenciaCendoj",
+        "summary": "Busca jurisprudencia en CENDOJ o extrae el texto de PDFs previamente localizados.",
+        "description": "Usa searchTerms para buscar resoluciones. Puede enviar hasta 4 consultas con operadores AND/OR/NOT/NEARn (o Y/O/NO/PROXn). Para leer resoluciones concretas, realiza una segunda llamada usando pdfUrls obtenidas en la primera búsqueda. No atribuyas doctrina a una resolución sin recuperar el texto cuando sea necesario verificar el fundamento jurídico.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "searchTerms": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Hasta 4 consultas. Ej.: [\"arraigo social AND \\\"vínculos familiares\\\"\", \"afinidad NEAR20 \\\"primer grado\\\"\"]"
+                  },
+                  "pdfUrls": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "URLs pdfUrl obtenidas en una búsqueda anterior para extraer el texto de resoluciones concretas."
+                  },
+                  "jurisdictions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "CIVIL",
+                        "PENAL",
+                        "CONTENCIOSO",
+                        "SOCIAL",
+                        "MILITAR",
+                        "ESPECIAL"
+                      ]
+                    },
+                    "description": "Para extranjería normalmente CONTENCIOSO."
+                  },
+                  "organoTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "11|12|13|14|15|16",
+                        "14",
+                        "22|2264|23|24|25|26|27|28|29",
+                        "23",
+                        "29",
+                        "31|31201202|33|34",
+                        "33",
+                        "45"
+                      ]
+                    },
+                    "description": "Órganos más útiles en contencioso: 11|12|13|14|15|16=Tribunal Supremo; 14=TS Sala Contencioso; 22|2264|23|24|25|26|27|28|29=Audiencia Nacional; 23=AN Sala Contencioso; 29=Juzgados Centrales Contencioso; 31|31201202|33|34=TSJ; 33=TSJ Sala Contencioso; 45=Juzgado Contencioso-Administrativo."
+                  },
+                  "resolutionTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SENTENCIA",
+                        "AUTO",
+                        "AUTOADMISION",
+                        "AUTOINADMISION",
+                        "AUTOACLARATORIO",
+                        "AUTOOTROS",
+                        "ACUERDO"
+                      ]
+                    }
+                  },
+                  "locations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "ANDALUCÍA",
+                        "ARAGÓN",
+                        "ASTURIAS",
+                        "BALEARES",
+                        "CANARIAS",
+                        "CANTABRIA",
+                        "CASTILLA LA MANCHA",
+                        "CASTILLA Y LEÓN",
+                        "CATALUÑA",
+                        "CEUTA",
+                        "COMUNIDAD VALENCIANA",
+                        "EXTREMADURA",
+                        "GALICIA",
+                        "LA RIOJA",
+                        "MADRID",
+                        "MELILLA",
+                        "MURCIA",
+                        "NAVARRA",
+                        "PAÍS VASCO"
+                      ]
+                    }
+                  },
+                  "maxResults": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "default": 10
+                  },
+                  "paragraphs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 20,
+                    "default": 0,
+                    "description": "0 devuelve texto completo; >0 devuelve ese número de pasajes relevantes cuando se extrae texto."
+                  },
+                  "paragraphTerms": {
+                    "type": "string",
+                    "description": "Términos para localizar pasajes clave al usar pdfUrls y paragraphs > 0."
+                  },
+                  "dateFrom": {
+                    "type": "string",
+                    "description": "Fecha inicial de resolución."
+                  },
+                  "dateTo": {
+                    "type": "string",
+                    "description": "Fecha final de resolución."
+                  },
+                  "sortOrder": {
+                    "type": "string",
+                    "enum": [
+                      "Relevance",
+                      "IN_FECHARESOLUCION:increasing",
+                      "IN_FECHARESOLUCION:decreasing",
+                      "IN_FECHAENTRADA:numberdecreasing"
+                    ],
+                    "default": "Relevance"
+                  },
+                  "proxyConfiguration": {
+                    "type": "object",
+                    "description": "Normalmente no hace falta modificarlo.",
+                    "default": {
+                      "useApifyProxy": true,
+                      "apifyProxyGroups": [
+                        "RESIDENTIAL"
+                      ],
+                      "apifyProxyCountry": "ES"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultados de CENDOJ o texto extraído de las resoluciones."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apifyBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Token"
+      }
+    }
+  }
+}
